@@ -1,0 +1,1 @@
+JurAI LLM-based agent for answering german judicial questions.
