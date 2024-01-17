@@ -2,8 +2,9 @@ import json
 import yaml
 import csv
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
+from langchain.schema import HumanMessage, SystemMessage
 from langchain.llms.huggingface_pipeline import HuggingFacePipeline
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 
 
 
@@ -21,7 +22,7 @@ class Evaluation:
         if "gpt" in self.model_config["repo_id"]:
             self.llm = ChatOpenAI(
             temperature=0,  # Make as deterministic as possible
-            model_name=self.model_config['model_name'],
+            model_name=self.model_config['repo_id'],
         )
         else:
             tokenizer = AutoTokenizer.from_pretrained(self.model_config["repo_id"])
@@ -34,24 +35,33 @@ class Evaluation:
             self.llm = HuggingFacePipeline(pipeline=pipe)
 
     def eval(self):
-        splits = self.model_config["repo_id"]
+        splits = self.model_config["repo_id"].split("/")
         if len(splits) > 1:
             model_name = splits[1]
         else:
             model_name = splits[0]
-        out_path = self.model_config["eval_result_path"] + "_" + model_name + "_" + self.model_config["eval_path"].split("/")[-1].replace(".txt", ".csv")
+        out_path = self.model_config["eval_result_path"] + model_name + "_" + self.model_config["eval_path"].split("/")[-1].replace(".txt", ".csv")
         with open(self.model_config["eval_path"], 'r') as input_file, open(out_path, 'w', newline='') as output_file:
             csv_writer = csv.writer(output_file)
             csv_writer.writerow(["Question", "Answer"])  # Writing the header row
             for line in input_file:
                 line = line.strip()  # Remove any leading/trailing whitespace
                 if line:
-                    answer = self.llm(line)
-                    csv_writer.writerow([line, answer[0]["generated_text"]])
+                    prompt= [
+                            SystemMessage(
+                                content="Bitte beantworte die folgende Frage über das deutsche Rechtssystem"
+                            ),
+                            HumanMessage(
+                                content=line
+                            ),
+                        ]
+                    print(line)
+                    output_llm = self.llm(prompt)
+                    csv_writer.writerow([line, output_llm.content])
 
 if __name__ == "__main__":
     model_config_path = "src/ml/config/bloke_german.yaml"
-    model_config_path = "src/ml/config/bloke_german.yaml"
+    model_config_path = "src/ml/config/gpt4.yaml"
     evaluation = Evaluation(model_config_path)
     evaluation.load_model()
     evaluation.eval()
