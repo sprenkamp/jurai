@@ -1,6 +1,7 @@
 from datasets import load_dataset
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+import json 
 
 train_dataset = load_dataset('json', data_files='notes.jsonl', split='train')
 eval_dataset = load_dataset('json', data_files='notes_validation.jsonl', split='train')
