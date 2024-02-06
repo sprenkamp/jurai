@@ -76,6 +76,7 @@ class Finetune:
 
         self.tokenized_train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
         if self.val_dataset is not None:
+            print("Tokenizing validation dataset...")
             self.tokenized_val_dataset = self.val_dataset.map(tokenize_map_function, batched=True)
 
     def wandb_init(self) -> None:
@@ -121,7 +122,7 @@ class Finetune:
         trainer = transformers.Trainer(
             model=self.model,
             train_dataset=self.tokenized_train_dataset,
-            eval_dataset=self.tokenized_val_dataset,
+            eval_dataset=self.tokenized_val_dataset if self.val_dataset is not None else None,
             args=transformers.TrainingArguments(
                 output_dir=output_dir,
                 warmup_steps=1,
