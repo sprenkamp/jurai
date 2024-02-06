@@ -110,7 +110,7 @@ class Finetune:
         """Conducts the training process."""
         
         self.peft_and_accelerator()
-        if self.model_config["wandb"]:
+        if self.model_config["wandb"] is not None:
             self.wandb_init()
 
         project = "journal-finetune"
