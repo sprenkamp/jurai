@@ -138,8 +138,9 @@ class Finetune:
                 save_steps=25,                # Save checkpoints every 50 steps
                 evaluation_strategy="steps", # Evaluate the model every logging step
                 eval_steps=25,               # Evaluate and save checkpoints every 50 steps
-                do_eval=True if self.val_dataset is not None else False,
-                report_to=self.model_config["wandb"] if self.model_config["wandb"] else False,run_name=f"{self.model_config["wandb"]}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None,
+                do_eval = True if self.val_dataset is not None else False,
+                report_to = self.model_config["wandb"] if self.model_config["wandb"] else False
+                run_name = f"{self.model_config['wandb']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None
                 push_to_hub=self.model_config["push_to_hub"],
             ),
             data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
