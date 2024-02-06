@@ -129,7 +129,7 @@ class Finetune:
                 per_device_train_batch_size=int(self.model_config["batch_size"]),
                 gradient_checkpointing=True,
                 max_steps=self.model_config["max_steps"],
-                learning_rate=self.model_config["learning_rate"],
+                learning_rate=2e-5, #TODO - Add learning rate scheduler correct format  in YAML
                 warmup_ratio=self.model_config["warmup_ratio"],
                 weight_decay=self.model_config["weight_decay"],
                 gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
