@@ -61,7 +61,7 @@ class Finetune:
     def load_and_tokenize(self) -> None:
         """Loads and tokenizes the training and validation datasets."""
         self.train_dataset = load_dataset('json', data_files=self.model_config['train_path'], split='train')
-        self.val_dataset = load_dataset('json', data_files=self.model_config['val_path'], split='train') if 'val_data_file' in self.model_config else None
+        self.val_dataset = load_dataset('json', data_files=self.model_config['val_path'], split='train') if self.model_config['val_path'] is not None else None
 
         def tokenize_map_function(examples):
             """Tokenizes examples for processing.
