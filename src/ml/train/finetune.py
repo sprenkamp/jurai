@@ -60,8 +60,8 @@ class Finetune:
 
     def load_and_tokenize(self) -> None:
         """Loads and tokenizes the training and validation datasets."""
-        self.train_dataset = load_dataset('json', data_files=self.model_config['train_data_file'], split='train')
-        self.val_dataset = load_dataset('json', data_files=self.model_config['val_data_file'], split='train') if 'val_data_file' in self.model_config else None
+        self.train_dataset = load_dataset('json', data_files=self.model_config['train_path'], split='train')
+        self.val_dataset = load_dataset('json', data_files=self.model_config['val_path'], split='train') if 'val_data_file' in self.model_config else None
 
         def tokenize_map_function(examples):
             """Tokenizes examples for processing.
@@ -72,7 +72,7 @@ class Finetune:
             Returns:
                 Tokenized examples.
             """
-            return self.tokenizer(examples["text"], truncation=True, max_length=self.model_config['max_length'], padding="max_length")
+            return self.tokenizer(examples["text"], truncation=True, max_length=self.model_config['block_size'], padding="max_length")
 
         self.tokenized_train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
         if self.val_dataset is not None:
@@ -87,11 +87,11 @@ class Finetune:
     def peft_and_accelerator(self) -> None:
         """Prepares the model for parameter-efficient fine-tuning and sets up the accelerator for distributed training."""
         config = LoraConfig(
-            r=32,
-            lora_alpha=64,
+            r=self.model_config["lora_r"],
+            lora_alpha=self.model_config["lora_alpha"],
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj", "lm_head"],
             bias="none",
-            lora_dropout=0.05,
+            lora_dropout=,
             task_type="CAUSAL_LM",
         )
         self.model = get_peft_model(self.model, config)
@@ -107,7 +107,7 @@ class Finetune:
         """Conducts the training process."""
         
         self.peft_and_accelerator()
-        if 'wandb' in self.model_config:
+        if self.model_config["wandb"]:
             self.wandb_init()
 
         project = "journal-finetune"
@@ -122,12 +122,15 @@ class Finetune:
             args=transformers.TrainingArguments(
                 output_dir=output_dir,
                 warmup_steps=1,
-                per_device_train_batch_size=2,
+                per_device_train_batch_size=int(self.model_config["batch_size"]),
                 gradient_accumulation_steps=1,
                 gradient_checkpointing=True,
-                max_steps=500,
-                learning_rate=2.5e-5, # Want a small lr for finetuning
-                fp16=True, 
+                max_steps=self.model_config["max_steps"],
+                learning_rate=float(self.model_config["learning_rate"]),
+                warmup_ratio=float(self.model_config["warmup_ratio"]),
+                weight_decay=float(self.model_config["weight_decay"]),
+                gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
+                fp16=self.model_config["fp16"], 
                 # bf16=True,
                 optim="paged_adamw_8bit",
                 logging_steps=25,              # When to start reporting loss
@@ -136,11 +139,11 @@ class Finetune:
                 save_steps=25,                # Save checkpoints every 50 steps
                 evaluation_strategy="steps", # Evaluate the model every logging step
                 eval_steps=25,               # Evaluate and save checkpoints every 50 steps
-                #do_eval=True,                # Perform evaluation at the end of training
-                #report_to="wandb",           # Comment this out if you don't want to use weights & baises
-                run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"          # Name of the W&B run (optional)
+                do_eval=True if self.val_dataset is not None else False,
+                report_to=self.model_config["wandb"] if self.model_config["wandb"] else False,run_name=f"{self.model_config["wandb"]}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None,
+                push_to_hub=self.model_config["push_to_hub"],
             ),
-            data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False),
+            data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
         )
 
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
