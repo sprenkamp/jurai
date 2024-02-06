@@ -6,8 +6,8 @@ repo_id: "kdot/"
 hf_token: "your_hf_token"
 
 #data
-train_path: "dummyData/selfSupervised/train.jsonl"
-val_path: "dummyData/selfSupervised/eval.jsonl"
+train_path: "train/dummyData/selfSupervised/train.jsonl"
+val_path: "train/dummyData/selfSupervised/eval.jsonl"
 
 #model
 learning_rate: "2e-5"
