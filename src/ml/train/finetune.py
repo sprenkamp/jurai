@@ -101,7 +101,10 @@ class Finetune:
             optim_state_dict_config=FullOptimStateDictConfig(offload_to_cpu=True, rank0_only=False),
         )
         accelerator = Accelerator(fsdp_plugin=fsdp_plugin)
-        self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset)
+        if self.val_dataset is not None:
+            self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset)
+        else:
+            self.model, self.tokenizer, self.tokenized_train_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset)
 
     def train(self):
         """Conducts the training process."""
