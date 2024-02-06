@@ -25,4 +25,5 @@ lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.045
 
-# wandb (no specific configuration provided here)
+#wandb
+wandb_project: Null # if you want to use wandb, set this to your project name
