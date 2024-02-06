@@ -76,6 +76,7 @@ class Finetune:
 
         self.tokenized_train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
         if self.val_dataset is not None:
+            print("Tokenizing validation dataset")
             self.tokenized_val_dataset = self.val_dataset.map(tokenize_map_function, batched=True)
 
     def wandb_init(self) -> None:
