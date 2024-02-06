@@ -88,7 +88,7 @@ class Finetune:
         """Prepares the model for parameter-efficient fine-tuning and sets up the accelerator for distributed training."""
         config = LoraConfig(
             r=self.model_config["lora_r"],
-            lora_alpha=float(self.model_config["lora_alpha"]),
+            lora_alpha=self.model_config["lora_alpha"],
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj", "lm_head"],
             bias="none",
             lora_dropout=self.model_config["lora_dropout"],
@@ -125,9 +125,9 @@ class Finetune:
                 per_device_train_batch_size=int(self.model_config["batch_size"]),
                 gradient_checkpointing=True,
                 max_steps=self.model_config["max_steps"],
-                learning_rate=float(self.model_config["learning_rate"]),
-                warmup_ratio=float(self.model_config["warmup_ratio"]),
-                weight_decay=float(self.model_config["weight_decay"]),
+                learning_rate=self.model_config["learning_rate"],
+                warmup_ratio=self.model_config["warmup_ratio"],
+                weight_decay=self.model_config["weight_decay"],
                 gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
                 fp16=self.model_config["fp16"], 
                 optim="paged_adamw_8bit",
