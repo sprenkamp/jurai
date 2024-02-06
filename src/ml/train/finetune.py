@@ -91,7 +91,7 @@ class Finetune:
             lora_alpha=self.model_config["lora_alpha"],
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj", "lm_head"],
             bias="none",
-            lora_dropout=,
+            lora_dropout=self.model_config["lora_dropout"],
             task_type="CAUSAL_LM",
         )
         self.model = get_peft_model(self.model, config)
@@ -131,7 +131,6 @@ class Finetune:
                 weight_decay=float(self.model_config["weight_decay"]),
                 gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
                 fp16=self.model_config["fp16"], 
-                # bf16=True,
                 optim="paged_adamw_8bit",
                 logging_steps=25,              # When to start reporting loss
                 logging_dir="./logs",        # Directory for storing logs
