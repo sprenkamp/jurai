@@ -1,5 +1,5 @@
 import os
-import json
+import yaml
 from datetime import datetime
 import torch
 from datasets import load_dataset
@@ -25,7 +25,7 @@ class Finetune:
         self.model, self.tokenizer = self.load_model_and_tokenizer()
 
     def load_config(self, model_config_path: str) -> dict:
-        """Loads model configuration from a JSON file.
+        """Loads model configuration from a YAML file.
 
         Args:
             model_config_path (str): Path to the model configuration file.
@@ -34,7 +34,7 @@ class Finetune:
             dict: The model configuration as a dictionary.
         """
         with open(model_config_path, 'r') as f:
-            model_config = json.load(f)
+            model_config = yaml.safe_load(f)
         return model_config
 
     def load_model_and_tokenizer(self) -> tuple:
@@ -156,6 +156,7 @@ if __name__ == "__main__":
     parser.add_argument('--config', type=str, help='Path to the model config file')
     args = parser.parse_args()
     # Initialize and run the fine-tuning process
+    print(args.config)
     finetune = Finetune(args.config)
     finetune.load_and_tokenize()
     finetune.train()
