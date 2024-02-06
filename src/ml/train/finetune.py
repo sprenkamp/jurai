@@ -123,7 +123,6 @@ class Finetune:
                 output_dir=output_dir,
                 warmup_steps=1,
                 per_device_train_batch_size=int(self.model_config["batch_size"]),
-                gradient_accumulation_steps=1,
                 gradient_checkpointing=True,
                 max_steps=self.model_config["max_steps"],
                 learning_rate=float(self.model_config["learning_rate"]),
