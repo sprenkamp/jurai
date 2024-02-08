@@ -5,7 +5,6 @@ import torch
 from datasets import load_dataset
 from transformers import (AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer,
                           DataCollatorForLanguageModeling, BitsAndBytesConfig)
-from peft import LoraConfig, get_peft_model
 import transformers
 from accelerate import FullyShardedDataParallelPlugin, Accelerator
 from torch.distributed.fsdp.fully_sharded_data_parallel import (FullOptimStateDictConfig,
@@ -43,19 +42,38 @@ class Finetune:
         Returns:
             tuple: A tuple containing the model and tokenizer instances.
         """
+        # bnb_config = BitsAndBytesConfig(
+        #     load_in_4bit=True,
+        #     bnb_4bit_use_double_quant=True,
+        #     bnb_4bit_quant_type="nf4",
+        #     bnb_4bit_compute_dtype=torch.float16
+        # )
+        # model = AutoModelForCausalLM.from_pretrained(self.model_config['base_model_id'],
+        #                                              quantization_config=bnb_config)
+        # tokenizer = AutoTokenizer.from_pretrained(self.model_config['base_model_id'],
+        #                                            padding_side="left",
+        #                                            add_eos_token=True,
+        #                                            add_bos_token=True)
+        # tokenizer.pad_token = tokenizer.eos_token
+
+        base_model_id = "DiscoResearch/DiscoLM_German_7b_v1"
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16
+            bnb_4bit_compute_dtype=torch.float16 #if V100 use torch.float16, if A100 use torch.bfloat16
         )
-        model = AutoModelForCausalLM.from_pretrained(self.model_config['base_model_id'],
-                                                     quantization_config=bnb_config)
-        tokenizer = AutoTokenizer.from_pretrained(self.model_config['base_model_id'],
-                                                   padding_side="left",
-                                                   add_eos_token=True,
-                                                   add_bos_token=True)
+
+        model = AutoModelForCausalLM.from_pretrained(base_model_id, quantization_config=bnb_config)
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            base_model_id,
+            padding_side="left",
+            add_eos_token=True,
+            add_bos_token=True,
+        )
         tokenizer.pad_token = tokenizer.eos_token
+
         return model, tokenizer
 
     def load_and_tokenize(self) -> None:
@@ -87,6 +105,12 @@ class Finetune:
 
     def peft_and_accelerator(self) -> None:
         """Prepares the model for parameter-efficient fine-tuning and sets up the accelerator for distributed training."""
+        
+        from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
+
+        model.gradient_checkpointing_enable()
+        model = prepare_model_for_kbit_training(model)
+
         config = LoraConfig(
             r=self.model_config["lora_r"],
             lora_alpha=self.model_config["lora_alpha"],
@@ -106,6 +130,34 @@ class Finetune:
             self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset)
         else:
             self.model, self.tokenizer, self.tokenized_train_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset)
+        # config = LoraConfig(
+        #     r=32,
+        #     lora_alpha=64,
+        #     target_modules=[
+        #         "q_proj",
+        #         "k_proj",
+        #         "v_proj",
+        #         "o_proj",
+        #         "gate_proj",
+        #         "up_proj",
+        #         "down_proj",
+        #         "lm_head",
+        #     ],
+        #     bias="none",
+        #     lora_dropout=0.05,  # Conventional
+        #     task_type="CAUSAL_LM",
+        # )
+        # self.model = get_peft_model(self.model, config)
+
+        # fsdp_plugin = FullyShardedDataParallelPlugin(
+        #     state_dict_config=FullStateDictConfig(offload_to_cpu=True, rank0_only=False),
+        #     optim_state_dict_config=FullOptimStateDictConfig(offload_to_cpu=True, rank0_only=False),
+        # )
+
+        # accelerator = Accelerator(fsdp_plugin=fsdp_plugin)
+
+        # self.model = accelerator.prepare_model(model)
+
 
     def train(self):
         """Conducts the training process."""
