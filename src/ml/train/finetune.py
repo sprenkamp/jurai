@@ -42,37 +42,37 @@ class Finetune:
         Returns:
             tuple: A tuple containing the model and tokenizer instances.
         """
-        # bnb_config = BitsAndBytesConfig(
-        #     load_in_4bit=True,
-        #     bnb_4bit_use_double_quant=True,
-        #     bnb_4bit_quant_type="nf4",
-        #     bnb_4bit_compute_dtype=torch.float16
-        # )
-        # model = AutoModelForCausalLM.from_pretrained(self.model_config['base_model_id'],
-        #                                              quantization_config=bnb_config)
-        # tokenizer = AutoTokenizer.from_pretrained(self.model_config['base_model_id'],
-        #                                            padding_side="left",
-        #                                            add_eos_token=True,
-        #                                            add_bos_token=True)
-        # tokenizer.pad_token = tokenizer.eos_token
-
-        base_model_id = "DiscoResearch/DiscoLM_German_7b_v1"
         bnb_config = BitsAndBytesConfig(
             load_in_4bit=True,
             bnb_4bit_use_double_quant=True,
             bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16 #if V100 use torch.float16, if A100 use torch.bfloat16
+            bnb_4bit_compute_dtype=torch.float16
         )
-
-        model = AutoModelForCausalLM.from_pretrained(base_model_id, quantization_config=bnb_config)
-
-        tokenizer = AutoTokenizer.from_pretrained(
-            base_model_id,
-            padding_side="left",
-            add_eos_token=True,
-            add_bos_token=True,
-        )
+        model = AutoModelForCausalLM.from_pretrained(self.model_config['base_model_id'],
+                                                     quantization_config=bnb_config)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_config['base_model_id'],
+                                                   padding_side="left",
+                                                   add_eos_token=True,
+                                                   add_bos_token=True)
         tokenizer.pad_token = tokenizer.eos_token
+
+        # base_model_id = "DiscoResearch/DiscoLM_German_7b_v1"
+        # bnb_config = BitsAndBytesConfig(
+        #     load_in_4bit=True,
+        #     bnb_4bit_use_double_quant=True,
+        #     bnb_4bit_quant_type="nf4",
+        #     bnb_4bit_compute_dtype=torch.float16 #if V100 use torch.float16, if A100 use torch.bfloat16
+        # )
+
+        # model = AutoModelForCausalLM.from_pretrained(base_model_id, quantization_config=bnb_config)
+
+        # tokenizer = AutoTokenizer.from_pretrained(
+        #     base_model_id,
+        #     padding_side="left",
+        #     add_eos_token=True,
+        #     add_bos_token=True,
+        # )
+        # tokenizer.pad_token = tokenizer.eos_token
 
         return model, tokenizer
 
@@ -171,49 +171,20 @@ class Finetune:
         run_name = base_model_name + "-" + project
         output_dir = "./" + run_name
 
-        trainer = transformers.Trainer(
-            model=self.model,
-            train_dataset=self.tokenized_train_dataset,
-            eval_dataset=None,
-            args=transformers.TrainingArguments(
-                output_dir=output_dir,
-                warmup_steps=1,
-                per_device_train_batch_size=2,
-                gradient_accumulation_steps=1,
-                gradient_checkpointing=True,
-                max_steps=500,
-                learning_rate=2.5e-5, # Want a small lr for finetuning
-                fp16=True,
-                # bf16=True,
-                optim="paged_adamw_8bit",
-                logging_steps=25,              # When to start reporting loss
-                logging_dir="./logs",        # Directory for storing logs
-                save_strategy="steps",       # Save the model checkpoint every logging step
-                save_steps=25,                # Save checkpoints every 50 steps
-                evaluation_strategy="steps", # Evaluate the model every logging step
-                eval_steps=25,               # Evaluate and save checkpoints every 50 steps
-                #do_eval=True,                # Perform evaluation at the end of training
-                #report_to="wandb",           # Comment this out if you don't want to use weights & baises
-                run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"          # Name of the W&B run (optional)
-            ),
-            data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
-        )
-
         # trainer = transformers.Trainer(
         #     model=self.model,
         #     train_dataset=self.tokenized_train_dataset,
-        #     eval_dataset=self.tokenized_val_dataset if self.val_dataset is not None else None,
+        #     eval_dataset=None,
         #     args=transformers.TrainingArguments(
         #         output_dir=output_dir,
         #         warmup_steps=1,
-        #         per_device_train_batch_size=int(self.model_config["batch_size"]),
+        #         per_device_train_batch_size=2,
+        #         gradient_accumulation_steps=1,
         #         gradient_checkpointing=True,
-        #         max_steps=self.model_config["max_steps"],
-        #         learning_rate=2e-5, #TODO - Add learning rate scheduler correct format  in YAML
-        #         warmup_ratio=self.model_config["warmup_ratio"],
-        #         weight_decay=self.model_config["weight_decay"],
-        #         gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
-        #         fp16=self.model_config["fp16"], 
+        #         max_steps=500,
+        #         learning_rate=2.5e-5, # Want a small lr for finetuning
+        #         fp16=True,
+        #         # bf16=True,
         #         optim="paged_adamw_8bit",
         #         logging_steps=25,              # When to start reporting loss
         #         logging_dir="./logs",        # Directory for storing logs
@@ -221,13 +192,42 @@ class Finetune:
         #         save_steps=25,                # Save checkpoints every 50 steps
         #         evaluation_strategy="steps", # Evaluate the model every logging step
         #         eval_steps=25,               # Evaluate and save checkpoints every 50 steps
-        #         do_eval = True if self.val_dataset is not None else False,
-        #         # report_to = self.model_config["wandb"] if self.model_config["wandb"] else False, #TODO - Add wandb
-        #         # run_name = f"{self.model_config['wandb']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None,
-        #         #push_to_hub=self.model_config["push_to_hub"], #TODO - Add push to hub  
+        #         #do_eval=True,                # Perform evaluation at the end of training
+        #         #report_to="wandb",           # Comment this out if you don't want to use weights & baises
+        #         run_name=f"{run_name}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}"          # Name of the W&B run (optional)
         #     ),
         #     data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
         # )
+
+        trainer = transformers.Trainer(
+            model=self.model,
+            train_dataset=self.tokenized_train_dataset,
+            eval_dataset=self.tokenized_val_dataset if self.val_dataset is not None else None,
+            args=transformers.TrainingArguments(
+                output_dir=output_dir,
+                warmup_steps=1,
+                per_device_train_batch_size=int(self.model_config["batch_size"]),
+                gradient_checkpointing=True,
+                max_steps=self.model_config["max_steps"],
+                learning_rate=2e-5, #TODO - Add learning rate scheduler correct format  in YAML
+                warmup_ratio=self.model_config["warmup_ratio"],
+                weight_decay=self.model_config["weight_decay"],
+                gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
+                fp16=self.model_config["fp16"], 
+                optim="paged_adamw_8bit",
+                logging_steps=25,              # When to start reporting loss
+                logging_dir="./logs",        # Directory for storing logs
+                save_strategy="steps",       # Save the model checkpoint every logging step
+                save_steps=25,                # Save checkpoints every 50 steps
+                evaluation_strategy="steps", # Evaluate the model every logging step
+                eval_steps=25,               # Evaluate and save checkpoints every 50 steps
+                do_eval = True if self.val_dataset is not None else False,
+                # report_to = self.model_config["wandb"] if self.model_config["wandb"] else False, #TODO - Add wandb
+                # run_name = f"{self.model_config['wandb']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None,
+                #push_to_hub=self.model_config["push_to_hub"], #TODO - Add push to hub  
+            ),
+            data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
+        )
 
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
         trainer.train()
