@@ -108,8 +108,8 @@ class Finetune:
         
         from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
 
-        model.gradient_checkpointing_enable()
-        model = prepare_model_for_kbit_training(model)
+        self.model.gradient_checkpointing_enable()
+        self.model = prepare_model_for_kbit_training(self.model)
 
         config = LoraConfig(
             r=self.model_config["lora_r"],
