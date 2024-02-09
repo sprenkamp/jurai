@@ -145,7 +145,7 @@ class Finetune:
                     evaluation_strategy="steps", # Evaluate the model every logging step
                     eval_steps=25,               # Evaluate and save checkpoints every 50 steps
                     do_eval = True if self.val_dataset is not None else False,
-                    report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else False, #TODO - Add wandb
+                    report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb_project"] else None,
                     push_to_hub=self.model_config["push_to_hub"],
                 )
