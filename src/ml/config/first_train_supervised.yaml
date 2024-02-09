@@ -6,8 +6,8 @@ repo_id: kdot/
 hf_token: your_hf_token
 
 # data
-train_path: train/dummyData/selfSupervised/train.jsonl
-val_path: train/dummyData/selfSupervised/eval.jsonl
+train_path: train/dummyData/supervised/conversational_format/train.jsonl
+val_path: train/dummyData/supervised/conversational_format/eval.jsonl
 
 # model
 training_type: supervised
