@@ -72,7 +72,6 @@ class Finetune:
 
             self.train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
             if self.val_dataset is not None:
-                print("Tokenizing validation dataset")
                 self.val_dataset = self.val_dataset.map(tokenize_map_function, batched=True)
 
 
@@ -123,7 +122,7 @@ class Finetune:
 
         print(f"{self.model_config['repo_id']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}")
         training_args = transformers.TrainingArguments(
-                    output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+                    output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}".replace("-", "_"),
                     warmup_steps=1,
                     per_device_train_batch_size=int(self.model_config["batch_size"]),
                     gradient_checkpointing=True,
@@ -144,7 +143,7 @@ class Finetune:
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb_project"] else None,
                     push_to_hub=self.model_config["push_to_hub"],
-                    hub_model_id=f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+                    hub_model_id=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}".replace("-", "_"), #TODO - better naming convention needed
                     hub_private_repo=True,
                 )
 
@@ -179,7 +178,7 @@ if __name__ == "__main__":
     parser.add_argument('--config', type=str, help='Path to the model config file')
     args = parser.parse_args()
     # Initialize and run the fine-tuning process
-    print(args.config)
     finetune = Finetune(args.config)
+    finetune.test_config()
     finetune.load_and_tokenize()
     finetune.train()
