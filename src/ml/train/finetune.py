@@ -123,7 +123,7 @@ class Finetune:
 
 
         training_args = transformers.TrainingArguments(
-                    output_dir=f"{{self.model_config['repo_id']}}_{{self.model_config['training_type']}}_{{self.model_config['base_model_id']}}_{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+                    output_dir=f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
                     warmup_steps=1,
                     per_device_train_batch_size=int(self.model_config["batch_size"]),
                     gradient_checkpointing=True,
@@ -144,7 +144,7 @@ class Finetune:
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb_project"] else None,
                     push_to_hub=self.model_config["push_to_hub"],
-                    hub_model_id=f"{{self.model_config['repo_id']}}_{{self.model_config['training_type']}}_{{self.model_config['base_model_id']}}_{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+                    hub_model_id=f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
                     hub_private_repo=True,
                 )
 
