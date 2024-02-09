@@ -1,8 +1,8 @@
 # huggingface
-project_name: JurAIGesetze
 base_model_id: DiscoResearch/DiscoLM_German_7b_v1
+repo_id: juraiLLM/first_test
+project_name: JurAIGesetze #is project name needed as well?
 push_to_hub: true
-repo_id: kdot/
 
 # data
 train_path: train/dummyData/supervised/conversational_format/train.jsonl
