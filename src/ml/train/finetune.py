@@ -132,7 +132,6 @@ class Finetune:
                     warmup_ratio=self.model_config["warmup_ratio"],
                     weight_decay=self.model_config["weight_decay"],
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
-                    save_embedding_layer=True,
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
                     logging_steps=25,              # When to start reporting loss
