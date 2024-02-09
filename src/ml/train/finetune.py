@@ -136,6 +136,7 @@ class Finetune:
                     warmup_ratio=self.model_config["warmup_ratio"],
                     weight_decay=self.model_config["weight_decay"],
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
+                    save_embedding_layer=True,
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
                     logging_steps=25,              # When to start reporting loss
@@ -148,6 +149,8 @@ class Finetune:
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb_project"] else None,
                     push_to_hub=self.model_config["push_to_hub"],
+                    hub_model_id=f"{self.model_config["repo_id"]}_{self.model_config["training_type"]}_{self.model_config["base_model_id"]}_{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+                    hub_private_repo=True,
                 )
 
         if self.model_config["training_type"] == "self_supervised":
@@ -173,8 +176,6 @@ class Finetune:
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
         trainer.train()
         self.model.save_pretrained(output_dir)
-            
-
 
 if __name__ == "__main__":
     import argparse
