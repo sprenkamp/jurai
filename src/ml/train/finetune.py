@@ -121,13 +121,9 @@ class Finetune:
         if self.model_config["wandb_project"] is not None:
             self.wandb_init()
 
-        project = "journal-finetune"
-        base_model_name = "mistral"
-        run_name = base_model_name + "-" + project
-        output_dir = "./" + run_name
 
         training_args = transformers.TrainingArguments(
-                    output_dir=output_dir,
+                    output_dir=f"{self.model_config["repo_id"]}_{self.model_config["training_type"]}_{self.model_config["base_model_id"]}_{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
                     warmup_steps=1,
                     per_device_train_batch_size=int(self.model_config["batch_size"]),
                     gradient_checkpointing=True,
