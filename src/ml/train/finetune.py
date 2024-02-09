@@ -121,7 +121,7 @@ class Finetune:
         if self.model_config["wandb_project"] is not None:
             self.wandb_init()
 
-
+        print(f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}")
         training_args = transformers.TrainingArguments(
                     output_dir=f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
                     warmup_steps=1,
