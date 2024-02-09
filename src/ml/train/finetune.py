@@ -70,10 +70,10 @@ class Finetune:
                 """
                 return self.tokenizer(examples["text"], truncation=True, max_length=self.model_config['block_size'], padding="max_length")
 
-            self.tokenized_train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
+            self.train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
             if self.val_dataset is not None:
                 print("Tokenizing validation dataset")
-                self.tokenized_val_dataset = self.val_dataset.map(tokenize_map_function, batched=True)
+                self.val_dataset = self.val_dataset.map(tokenize_map_function, batched=True)
 
 
     def wandb_init(self) -> None:
@@ -110,9 +110,9 @@ class Finetune:
         )
         accelerator = Accelerator(fsdp_plugin=fsdp_plugin)
         if self.val_dataset is not None:
-            self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset, self.tokenized_val_dataset)
+            self.model, self.tokenizer, self.train_dataset, self.val_dataset = accelerator.prepare(self.model, self.tokenizer, self.train_dataset, self.val_dataset)
         else:
-            self.model, self.tokenizer, self.tokenized_train_dataset = accelerator.prepare(self.model, self.tokenizer, self.tokenized_train_dataset)
+            self.model, self.tokenizer, self.train_dataset = accelerator.prepare(self.model, self.tokenizer, self.train_dataset)
 
     def train(self):
         """Conducts the training process."""
@@ -153,8 +153,8 @@ class Finetune:
         if self.model_config["training_type"] == "self_supervised":
             trainer = transformers.Trainer(
                 model=self.model,
-                train_dataset=self.tokenized_train_dataset,
-                eval_dataset=self.tokenized_val_dataset if self.val_dataset is not None else None,
+                train_dataset=self.train_dataset,
+                eval_dataset=self.val_dataset if self.val_dataset is not None else None,
                 args=training_args,
                 data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
             )
@@ -164,8 +164,8 @@ class Finetune:
 
             trainer = SFTTrainer(
                 model=self.model,
-                train_dataset=self.tokenized_train_dataset,
-                eval_dataset=self.tokenized_val_dataset if self.val_dataset is not None else None,
+                train_dataset=self.train_dataset,
+                eval_dataset=self.val_dataset if self.val_dataset is not None else None,
                 args=training_args,
                 data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
             )
