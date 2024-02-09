@@ -179,6 +179,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     # Initialize and run the fine-tuning process
     finetune = Finetune(args.config)
-    finetune.test_config()
     finetune.load_and_tokenize()
     finetune.train()
