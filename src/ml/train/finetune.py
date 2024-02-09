@@ -120,9 +120,8 @@ class Finetune:
         if self.model_config["wandb_project"] is not None:
             self.wandb_init()
 
-        print(f"{self.model_config['repo_id']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}")
         training_args = transformers.TrainingArguments(
-                    output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}".replace("-", "_"),
+                    output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y')}".replace("-", "_"),
                     warmup_steps=1,
                     per_device_train_batch_size=int(self.model_config["batch_size"]),
                     gradient_checkpointing=True,
@@ -141,9 +140,9 @@ class Finetune:
                     eval_steps=25,               # Evaluate and save checkpoints every 50 steps
                     do_eval = True if self.val_dataset is not None else False,
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
-                    run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb_project"] else None,
+                    run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
                     push_to_hub=self.model_config["push_to_hub"],
-                    hub_model_id=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}".replace("-", "_"), #TODO - better naming convention needed
+                    hub_model_id=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y')}".replace("-", "_"), #TODO - better naming convention needed
                     hub_private_repo=True,
                 )
 
