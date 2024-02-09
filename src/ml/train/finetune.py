@@ -121,9 +121,9 @@ class Finetune:
         if self.model_config["wandb_project"] is not None:
             self.wandb_init()
 
-        print(f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}")
+        print(f"{self.model_config['repo_id']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}")
         training_args = transformers.TrainingArguments(
-                    output_dir=f"{{self.model_config['repo_id']}}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
+                    output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}",
                     warmup_steps=1,
                     per_device_train_batch_size=int(self.model_config["batch_size"]),
                     gradient_checkpointing=True,
