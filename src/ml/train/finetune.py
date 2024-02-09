@@ -132,7 +132,7 @@ class Finetune:
                     per_device_train_batch_size=int(self.model_config["batch_size"]),
                     gradient_checkpointing=True,
                     max_steps=self.model_config["max_steps"],
-                    learning_rate=2e-5, #TODO - Add learning rate scheduler correct format  in YAML
+                    learning_rate=float(self.model_config["learning_rate"]),
                     warmup_ratio=self.model_config["warmup_ratio"],
                     weight_decay=self.model_config["weight_decay"],
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
@@ -145,9 +145,9 @@ class Finetune:
                     evaluation_strategy="steps", # Evaluate the model every logging step
                     eval_steps=25,               # Evaluate and save checkpoints every 50 steps
                     do_eval = True if self.val_dataset is not None else False,
-                    # report_to = self.model_config["wandb"] if self.model_config["wandb"] else False, #TODO - Add wandb
-                    # run_name = f"{self.model_config['wandb']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None,
-                    #push_to_hub=self.model_config["push_to_hub"], #TODO - Add push to hub  
+                    report_to = self.model_config["wandb"] if self.model_config["wandb"] else False, #TODO - Add wandb
+                    run_name = f"{self.model_config['wandb']}-{datetime.now().strftime('%Y-%m-%d-%H-%M')}" if self.model_config["wandb"] else None,
+                    push_to_hub=self.model_config["push_to_hub"],
                 )
 
         if self.model_config["training_type"] == "self_supervised":

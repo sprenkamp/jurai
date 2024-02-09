@@ -3,7 +3,6 @@ project_name: JurAIGesetze
 base_model_id: DiscoResearch/DiscoLM_German_7b_v1
 push_to_hub: true
 repo_id: kdot/
-hf_token: your_hf_token
 
 # data
 train_path: train/dummyData/supervised/conversational_format/train.jsonl
