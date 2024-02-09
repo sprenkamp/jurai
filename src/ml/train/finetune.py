@@ -171,7 +171,7 @@ class Finetune:
 
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
         trainer.train()
-        self.model.save_pretrained(output_dir)
+        # self.model.save_pretrained(f"{self.model_config["repo_id"]}_{self.model_config["training_type"]}_{self.model_config["base_model_id"]}_{datetime.now().strftime('%Y-%m-%d-%H-%M')}") #not neede
 
 if __name__ == "__main__":
     import argparse
