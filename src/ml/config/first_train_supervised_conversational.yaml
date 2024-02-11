@@ -5,7 +5,7 @@ project_name: JurAIGesetze #is project name needed as well?
 push_to_hub: true
 
 # data
-train_path: ~/content/drive/MyDrive/JurAI/data/train_data.json
+train_path: ../../../MyDrive/JurAI/data/train_data.json
 val_path: Null
 
 # model
