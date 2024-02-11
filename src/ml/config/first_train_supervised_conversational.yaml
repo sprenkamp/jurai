@@ -13,7 +13,7 @@ training_type: supervised
 learning_rate: 2e-5
 max_steps: 29456
 batch_size: 2
-block_size: 4096
+block_size: 8192
 trainer: sft
 warmup_ratio: 0.1
 weight_decay: 0.01
