@@ -130,6 +130,7 @@ class Finetune:
                     warmup_ratio=self.model_config["warmup_ratio"],
                     weight_decay=self.model_config["weight_decay"],
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
+                    max_seq_length=self.model_config["block_size"],
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
                     logging_steps=25,              # When to start reporting loss
@@ -138,7 +139,7 @@ class Finetune:
                     save_steps=25,                # Save checkpoints every 50 steps
                     evaluation_strategy="steps", # Evaluate the model every logging step
                     eval_steps=25,               # Evaluate and save checkpoints every 50 steps
-                    do_eval = True if self.val_dataset is not None else False,
+                    do_eval = True if self.model_config["val_path"] is not None else False,
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
                     push_to_hub=self.model_config["push_to_hub"],
