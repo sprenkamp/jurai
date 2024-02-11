@@ -130,7 +130,6 @@ class Finetune:
                     warmup_ratio=self.model_config["warmup_ratio"],
                     weight_decay=self.model_config["weight_decay"],
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
-                    max_seq_length=self.model_config["block_size"],
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
                     logging_steps=25,              # When to start reporting loss
@@ -154,6 +153,7 @@ class Finetune:
                 eval_dataset=self.val_dataset if self.val_dataset is not None else None,
                 args=training_args,
                 data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
+                max_seq_length=self.model_config["block_size"],
             )
 
         if self.model_config["training_type"] ==  "supervised":    
@@ -165,6 +165,7 @@ class Finetune:
                 eval_dataset=self.val_dataset if self.val_dataset is not None else None,
                 args=training_args,
                 data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
+                max_seq_length=self.model_config["block_size"],
             )
 
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
