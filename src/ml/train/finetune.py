@@ -46,7 +46,7 @@ class Finetune:
         model = transformers.AutoModelForCausalLM.from_pretrained(self.model_config['base_model_id'],
                                                      quantization_config=bnb_config)
         tokenizer = transformers.AutoTokenizer.from_pretrained(self.model_config['base_model_id'],
-                                                   padding_side="left",
+                                                   padding_side="right",
                                                    add_eos_token=True,
                                                    add_bos_token=True)
         tokenizer.pad_token = tokenizer.eos_token
