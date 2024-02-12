@@ -1,0 +1,29 @@
+# huggingface
+base_model_id: DiscoResearch/DiscoLM_German_7b_v1
+repo_id: juraiLLM/supervised_conversational
+project_name: JurAIGesetze #is project name needed as well?
+push_to_hub: true
+
+# data
+train_path: jurai/src/ml/train/dummyData/supervised/conversational_format/train.jsonl
+val_path: Null
+
+# model
+training_type: supervised
+learning_rate: 2e-5
+max_steps: 29456
+batch_size: 2
+block_size: 8192
+trainer: sft
+warmup_ratio: 0.1
+weight_decay: 0.01
+gradient_accumulation_steps: 4
+fp16: true
+use_peft: true
+use_int4: true
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.045
+
+# wandb
+wandb_project: Null # if you want to use wandb, set this to your project name
