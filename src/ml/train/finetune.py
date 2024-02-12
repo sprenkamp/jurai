@@ -135,7 +135,7 @@ class Finetune:
                     logging_steps=25,              # When to start reporting loss
                     logging_dir="./logs",        # Directory for storing logs
                     save_strategy="steps",       # Save the model checkpoint every logging step
-                    save_steps=5000,                # Save checkpoints every 50 steps
+                    save_steps=5000,                # Save checkpoints every 5000 steps
                     evaluation_strategy="steps" if self.model_config["val_path"] is not None else "no", # Evaluate the model every logging step
                     eval_steps=25,               # Evaluate and save checkpoints every 50 steps
                     do_eval = True if self.model_config["val_path"] is not None else False,
