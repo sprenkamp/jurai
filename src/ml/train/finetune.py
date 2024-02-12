@@ -132,7 +132,7 @@ class Finetune:
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
-                    logging_steps=25,              # When to start reporting loss
+                    logging_steps=5000,              # When to start reporting loss
                     logging_dir="./logs",        # Directory for storing logs
                     save_strategy="steps",       # Save the model checkpoint every logging step
                     save_steps=5000,                # Save checkpoints every 5000 steps
