@@ -1,19 +1,18 @@
 # huggingface
 base_model_id: DiscoResearch/DiscoLM_German_7b_v1
 repo_id: juraiLLM/supervised_conversational
-project_name: JurAIGesetze #is project name needed as well?
 push_to_hub: true
 
 # data
-train_path: drive/MyDrive/JurAI/data/train_data.json
-val_path: Null
+train_path: drive/MyDrive/JurAI/data/train_data.json #change to your data path
+val_path: Null 
 
 # model
 training_type: supervised
 learning_rate: 2e-5
-max_steps: 29456
+max_steps: 58912
 batch_size: 2
-block_size: 8192
+block_size: 4096 
 trainer: sft
 warmup_ratio: 0.1
 weight_decay: 0.01

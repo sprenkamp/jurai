@@ -68,7 +68,7 @@ class Finetune:
                 Returns:
                     Tokenized examples.
                 """
-                return self.tokenizer(examples["text"], truncation=True, max_length=self.model_config['block_size'], padding="max_length")
+                return self.tokenizer(examples["text"], truncation=True, padding="max_length") #max_length=self.model_config['block_size'] NOTE max_length taken out here as done through trainer
 
             self.train_dataset = self.train_dataset.map(tokenize_map_function, batched=True)
             if self.val_dataset is not None:
@@ -137,7 +137,7 @@ class Finetune:
                     save_strategy="steps",       # Save the model checkpoint every logging step
                     save_steps=25,                # Save checkpoints every 50 steps
                     evaluation_strategy="steps" if self.model_config["val_path"] is not None else "no", # Evaluate the model every logging step
-                    eval_steps=1,               # Evaluate and save checkpoints every 50 steps
+                    eval_steps=25,               # Evaluate and save checkpoints every 50 steps
                     do_eval = True if self.model_config["val_path"] is not None else False,
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
