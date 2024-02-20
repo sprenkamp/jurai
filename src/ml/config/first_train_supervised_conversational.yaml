@@ -11,7 +11,7 @@ val_path: Null
 # model
 training_type: supervised
 learning_rate: 2e-5
-max_steps: 58912
+max_steps: 43912
 batch_size: 2
 block_size: 4096
 trainer: sft
@@ -21,9 +21,13 @@ gradient_accumulation_steps: 4
 fp16: true
 use_peft: true
 use_int4: true
+logging_steps: 500
+save_steps: 2500
+eval_steps: 2500
 lora_r: 16
 lora_alpha: 32
 lora_dropout: 0.045
+use_rslora: false 
 
 # wandb
 wandb_project: Null # if you want to use wandb, set this to your project name
