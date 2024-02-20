@@ -92,6 +92,7 @@ class Finetune:
         if self.model_config["repo_resume_id"]:
             from peft import PeftConfig
             config = PeftConfig.from_pretrained(self.model_config["repo_resume_id"])
+            config.inference_mode = False
         else:
             config = LoraConfig(
                 r=self.model_config["lora_r"],
