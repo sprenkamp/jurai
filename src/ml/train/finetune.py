@@ -101,6 +101,7 @@ class Finetune:
                 bias="none",
                 lora_dropout=self.model_config["lora_dropout"],
                 task_type="CAUSAL_LM",
+                use_rslora=self.model_config["use_rslora"]
             )
         self.model = get_peft_model(self.model, config)
 
@@ -176,16 +177,18 @@ class Finetune:
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
         trainer.train()
 
-    def resume_train(self):
+    def train(self):
         """Resumes the training process from a checkpoint."""
         
         self.peft_and_accelerator()
         if self.model_config["wandb_project"] is not None:
             self.wandb_init()
         
-        from peft import PeftModel
-        self.model.enable_input_require_grads() # to make training possible
-        self.model = PeftModel.from_pretrained(self.model, self.model_config["repo_resume_id"], is_trainable=True)
+        if self.model_config["repo_resume_id"]:
+            print(f'resume training from checkpoint {self.model_config["repo_resume_id"]}')
+            from peft import PeftModel
+            self.model.enable_input_require_grads() # to make training possible
+            self.model = PeftModel.from_pretrained(self.model, self.model_config["repo_resume_id"], is_trainable=True)
 
         training_args = transformers.TrainingArguments(
                     output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y')}".replace("-", "_"),
@@ -199,12 +202,12 @@ class Finetune:
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
-                    logging_steps=25,              # When to start reporting loss
+                    logging_steps=self.model_config["logging_steps"],             # When to start reporting loss
                     logging_dir="./logs",        # Directory for storing logs
                     save_strategy="steps",       # Save the model checkpoint every logging step
-                    save_steps=25,                # Save checkpoints every 50 steps
+                    save_steps=self.model_config["save_steps"],                # Save checkpoints every XXX steps
                     evaluation_strategy="steps" if self.model_config["val_path"] is not None else "no", # Evaluate the model every logging step
-                    eval_steps=25,               # Evaluate and save checkpoints every 50 steps
+                    eval_steps=self.model_config["eval_steps"],               # Evaluate and save checkpoints every XXX steps
                     do_eval = True if self.model_config["val_path"] is not None else False,
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
@@ -247,8 +250,4 @@ if __name__ == "__main__":
     # Initialize and run the fine-tuning process
     finetune = Finetune(args.config)
     finetune.load_and_tokenize()
-    if finetune.model_config["repo_resume_id"]:
-        print('resume training from checkpoint...')
-        finetune.resume_train()
-    else:
-        finetune.train()
+    finetune.train()
