@@ -205,9 +205,9 @@ class Finetune:
                     logging_steps=self.model_config["logging_steps"],             # When to start reporting loss
                     logging_dir="./logs",        # Directory for storing logs
                     save_strategy="steps",       # Save the model checkpoint every logging step
-                    save_steps=self.model_config["save_steps"],                # Save checkpoints every XXX steps
+                    save_steps=self.model_config["save_steps"],                # Save checkpoints every X steps
                     evaluation_strategy="steps" if self.model_config["val_path"] is not None else "no", # Evaluate the model every logging step
-                    eval_steps=self.model_config["eval_steps"],               # Evaluate and save checkpoints every XXX steps
+                    eval_steps=self.model_config["eval_steps"],               # Evaluate and save checkpoints every X steps
                     do_eval = True if self.model_config["val_path"] is not None else False,
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
