@@ -2,7 +2,7 @@
 base_model_id: DiscoResearch/DiscoLM_German_7b_v1
 repo_id: juraiLLM/supervised_conversational
 push_to_hub: true
-repo_resume_id: juraiLLM/supervised_conversational
+repo_resume_id: juraiLLM/copyofconversational
 
 # data
 train_path: drive/MyDrive/JurAI/data/train_data.json #change to your data path
