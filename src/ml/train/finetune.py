@@ -236,9 +236,12 @@ class Finetune:
                 data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
                 max_seq_length=self.model_config["block_size"],
             )
-
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
-        trainer.train()
+
+        if self.model_config["repo_resume_id"]:
+            trainer.train(resume_from_checkpoint=True)
+        else:
+            trainer.train()
 
 
 if __name__ == "__main__":
