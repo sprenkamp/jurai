@@ -221,6 +221,20 @@ class Finetune:
                 data_collator=transformers.DataCollatorForLanguageModeling
             )
 
+        if self.model_config["training_type"] ==  "supervised":    
+            from trl import SFTTrainer
+
+            trainer = SFTTrainer(
+                model=self.model,
+                train_dataset=self.train_dataset,
+                eval_dataset=self.val_dataset if self.val_dataset is not None else None,
+                args=training_args,
+                data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
+                max_seq_length=self.model_config["block_size"],
+            )
+
+        self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
+        trainer.train()
 
 
 if __name__ == "__main__":
