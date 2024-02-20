@@ -89,14 +89,18 @@ class Finetune:
         self.model.gradient_checkpointing_enable()
         self.model = prepare_model_for_kbit_training(self.model)
 
-        config = LoraConfig(
-            r=self.model_config["lora_r"],
-            lora_alpha=self.model_config["lora_alpha"],
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj", "lm_head"],
-            bias="none",
-            lora_dropout=self.model_config["lora_dropout"],
-            task_type="CAUSAL_LM",
-        )
+        if self.model_config["repo_resume_id"]:
+            from peft import PeftConfig
+            config = PeftConfig.from_pretrained(self.model_config["repo_resume_id"])
+        else:
+            config = LoraConfig(
+                r=self.model_config["lora_r"],
+                lora_alpha=self.model_config["lora_alpha"],
+                target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj", "lm_head"],
+                bias="none",
+                lora_dropout=self.model_config["lora_dropout"],
+                task_type="CAUSAL_LM",
+            )
         self.model = get_peft_model(self.model, config)
 
         # Accelerator setup
@@ -178,8 +182,7 @@ class Finetune:
         if self.model_config["wandb_project"] is not None:
             self.wandb_init()
         
-        from peft import PeftModel, PeftConfig
-        config = PeftConfig.from_pretrained(self.model_config["repo_resume_id"])
+        from peft import PeftModel
         self.model.enable_input_require_grads() # to make training possible
         self.model = PeftModel.from_pretrained(self.model, self.model_config["repo_resume_id"])
 
@@ -217,21 +220,6 @@ class Finetune:
                 args=training_args,
                 data_collator=transformers.DataCollatorForLanguageModeling
             )
-        
-        if self.model_config["training_type"] ==  "supervised":    
-            from trl import SFTTrainer
-
-            trainer = SFTTrainer(
-                model=self.model,
-                train_dataset=self.train_dataset,
-                eval_dataset=self.val_dataset if self.val_dataset is not None else None,
-                args=training_args,
-                data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
-                max_seq_length=self.model_config["block_size"],
-            )
-
-        self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
-        trainer.train()
 
 
 
