@@ -132,12 +132,12 @@ class Finetune:
                     gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
                     fp16=self.model_config["fp16"], 
                     optim="paged_adamw_8bit",
-                    logging_steps=5000,              # When to start reporting loss
+                    logging_steps=self.model_config["logging_steps"],             # When to start reporting loss
                     logging_dir="./logs",        # Directory for storing logs
                     save_strategy="steps",       # Save the model checkpoint every logging step
-                    save_steps=5000,                # Save checkpoints every 5000 steps
+                    save_steps=self.model_config["save_steps"],                # Save checkpoints every X steps
                     evaluation_strategy="steps" if self.model_config["val_path"] is not None else "no", # Evaluate the model every logging step
-                    eval_steps=25,               # Evaluate and save checkpoints every 50 steps
+                    eval_steps=self.model_config["eval_steps"],               # Evaluate and save checkpoints every X steps
                     do_eval = True if self.model_config["val_path"] is not None else False,
                     report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
                     run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
