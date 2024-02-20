@@ -120,64 +120,6 @@ class Finetune:
             self.model, self.tokenizer, self.train_dataset = accelerator.prepare(self.model, self.tokenizer, self.train_dataset)
 
     def train(self):
-        """Conducts the training process."""
-        
-        self.peft_and_accelerator()
-        if self.model_config["wandb_project"] is not None:
-            self.wandb_init()
-
-        training_args = transformers.TrainingArguments(
-                    output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y')}".replace("-", "_"),
-                    warmup_steps=1,
-                    per_device_train_batch_size=int(self.model_config["batch_size"]),
-                    gradient_checkpointing=True,
-                    max_steps=self.model_config["max_steps"],
-                    learning_rate=float(self.model_config["learning_rate"]),
-                    warmup_ratio=self.model_config["warmup_ratio"],
-                    weight_decay=self.model_config["weight_decay"],
-                    gradient_accumulation_steps=int(self.model_config["gradient_accumulation_steps"]),
-                    fp16=self.model_config["fp16"], 
-                    optim="paged_adamw_8bit",
-                    logging_steps=25,              # When to start reporting loss
-                    logging_dir="./logs",        # Directory for storing logs
-                    save_strategy="steps",       # Save the model checkpoint every logging step
-                    save_steps=25,                # Save checkpoints every 50 steps
-                    evaluation_strategy="steps" if self.model_config["val_path"] is not None else "no", # Evaluate the model every logging step
-                    eval_steps=25,               # Evaluate and save checkpoints every 50 steps
-                    do_eval = True if self.model_config["val_path"] is not None else False,
-                    report_to = self.model_config["wandb_project"] if self.model_config["wandb_project"] else None, #TODO - Add wandb
-                    run_name = f"{self.model_config['wandb_project']}-{datetime.now().strftime('%d-%m-%Y-%H-%M')}" if self.model_config["wandb_project"] else None,
-                    push_to_hub=self.model_config["push_to_hub"],
-                    hub_model_id=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y')}".replace("-", "_"), #TODO - better naming convention needed
-                    hub_private_repo=True,
-                )
-
-        if self.model_config["training_type"] == "self_supervised":
-            trainer = transformers.Trainer(
-                model=self.model,
-                train_dataset=self.train_dataset,
-                eval_dataset=self.val_dataset if self.val_dataset is not None else None,
-                args=training_args,
-                data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
-                max_seq_length=self.model_config["block_size"],
-            )
-
-        if self.model_config["training_type"] ==  "supervised":    
-            from trl import SFTTrainer
-
-            trainer = SFTTrainer(
-                model=self.model,
-                train_dataset=self.train_dataset,
-                eval_dataset=self.val_dataset if self.val_dataset is not None else None,
-                args=training_args,
-                data_collator=transformers.DataCollatorForLanguageModeling(self.tokenizer, mlm=False),
-                max_seq_length=self.model_config["block_size"],
-            )
-
-        self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
-        trainer.train()
-
-    def train(self):
         """Resumes the training process from a checkpoint."""
         
         self.peft_and_accelerator()
@@ -238,10 +180,7 @@ class Finetune:
             )
         self.model.config.use_cache = False  # silence the warnings. Please re-enable for inference!
 
-        if self.model_config["repo_resume_id"]:
-            trainer.train(resume_from_checkpoint=True)
-        else:
-            trainer.train()
+        trainer.train()
 
 
 if __name__ == "__main__":
