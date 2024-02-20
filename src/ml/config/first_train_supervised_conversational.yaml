@@ -11,7 +11,7 @@ val_path: Null
 # model
 training_type: supervised
 learning_rate: 2e-5
-max_steps: 58912
+max_steps: 43912
 batch_size: 2
 block_size: 4096
 trainer: sft
