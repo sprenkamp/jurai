@@ -185,7 +185,7 @@ class Finetune:
         
         from peft import PeftModel
         self.model.enable_input_require_grads() # to make training possible
-        self.model = PeftModel.from_pretrained(self.model, self.model_config["repo_resume_id"])
+        self.model = PeftModel.from_pretrained(self.model, self.model_config["repo_resume_id"], is_trainable=True)
 
         training_args = transformers.TrainingArguments(
                     output_dir=f"{self.model_config['repo_id']}-{datetime.now().strftime('%d-%m-%Y')}".replace("-", "_"),
