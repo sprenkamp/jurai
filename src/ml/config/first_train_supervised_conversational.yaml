@@ -3,10 +3,13 @@ base_model_id: DiscoResearch/DiscoLM_German_7b_v1
 repo_id: juraiLLM/supervised_conversational
 push_to_hub: true
 repo_resume_id: juraiLLM/supervised_conversational
+repo_id: juraiLLM/supervised_conversational_20_02_2024
 
 # data
-train_path: drive/MyDrive/JurAI/data/train_data.json #change to your data path
-val_path: Null 
+train_path: train/dummyData/selfSupervised/train.jsonl
+val_path: Null
+test_path: "src/ml/test/test_set/test_sample.csv"
+test_result_path: "src/ml/test/results/"
 
 # model
 training_type: supervised

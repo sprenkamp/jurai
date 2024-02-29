@@ -1,3 +1,3 @@
 repo_id: "gpt-4"
-eval_path: "src/ml/evaluation/evaluation_data/first_test.txt"
-eval_result_path: "src/ml/evaluation/results/"
+test_path: "src/ml/test/test_set/test_sample.csv"
+test_result_path: "src/ml/test/results/"
