@@ -17,6 +17,7 @@ learning_rate: 2e-5
 max_steps: 43912
 batch_size: 2
 block_size: 4096
+overlap: 200
 trainer: sft
 warmup_ratio: 0.1
 weight_decay: 0.01
