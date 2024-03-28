@@ -15,7 +15,8 @@ def process_multiple_rows(rows, collection_name):
     for row in rows:
         metadata = {'user': row["User"]}
         metadata_list.append(metadata)
-        texts.append(row["User"], row['Assistant'])
+        text = row['Assistant']
+        texts.append(text)
 
     docs = create_documents_from_texts(texts, metadata_list)
     Chroma.from_documents(
