@@ -1,4 +1,4 @@
-repo_id: "gpt-4"
+repo_id: "gpt-4-turbo-preview"
 test_path: "src/ml/test/test_set/test_sample.csv"
 test_result_path: "src/ml/test/results/"
 rag: True

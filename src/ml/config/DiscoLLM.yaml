@@ -1,0 +1,9 @@
+# huggingface
+repo_id: DiscoResearch/DiscoLM_German_7b_v1
+inference_endpoint: https://yze21zfb68c7nors.us-east-1.aws.endpoints.huggingface.cloud
+
+# data
+test_path: "src/ml/test/test_set/test_sample.csv"
+test_result_path: "src/ml/test/results/"
+
+

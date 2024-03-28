@@ -1,0 +1,6 @@
+README.md
+setup.py
+jurai.egg-info/PKG-INFO
+jurai.egg-info/SOURCES.txt
+jurai.egg-info/dependency_links.txt
+jurai.egg-info/top_level.txt

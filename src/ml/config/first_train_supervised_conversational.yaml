@@ -2,8 +2,8 @@
 base_model_id: DiscoResearch/DiscoLM_German_7b_v1
 repo_id: juraiLLM/supervised_conversational
 push_to_hub: true
-repo_resume_id: juraiLLM/supervised_conversational
-repo_id: juraiLLM/supervised_conversational_20_02_2024
+inference_endpoint: https://wz8nhmn87v5gt1tr.us-east-1.aws.endpoints.huggingface.cloud
+
 
 # data
 train_path: train/dummyData/selfSupervised/train.jsonl
