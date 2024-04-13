@@ -13,4 +13,7 @@ laws_api = oldp_client.LawsApi(api_client)
 thread = laws_api.laws_list(async_req=True)
 result = thread.get()
 
-print(len(result))
+import pandas as pd
+
+df = pd.DataFrame(result)
+df.head()

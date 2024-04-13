@@ -9,7 +9,7 @@ text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     encoding_name="cl100k_base", chunk_size=4094, chunk_overlap=512
 )
 
-file_path = 'data/train_data.json'
+file_path = 'data/train_datasmall.json'
 with open(file_path, 'r') as file:
     lines = file.readlines()
     old_list = [json.loads(line) for line in lines]
@@ -26,6 +26,8 @@ for doc in tqdm(old_list):
     else:
         new_list.append(doc)
 
-with open('data/train_data_chunked_4096.json', 'w') as file:
+print(len(old_list), len(new_list))
+
+with open('data/train_datasmall_chunked_4069.jsonl', 'w') as file:
     for doc in new_list:
         file.write(json.dumps(doc) + '\n')
