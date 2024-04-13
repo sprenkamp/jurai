@@ -18,7 +18,7 @@ class Testing:
         self.model_config = self.load_config(model_config_path)
         self.load_model()
         if self.model_config["rag"]:
-            self.chromadb = retrieve_chromadb(collection_name="jurai_laws_gg")
+            self.chromadb = retrieve_chromadb(collection_name="jurai")
 
     def load_config(self, model_config_path):
         with open(model_config_path, 'r') as f:
@@ -80,13 +80,13 @@ class Testing:
                             csv_writer.writerow([question, output_llm.content])
                         else:
                             # k=50 #allow for more documents to be retrieved for 8k tokens of gpt-4
-                            prompt_template = """Du bist deutscher Rechtsexperte, der Gesetze und Vorschriften anwendet und interpretiert und Rechtsfragen löst. Du sollst klare und ausführliche Antworten geben und die einschlägigen Gesetze zitieren. Wenn dir eine Frage unklar oder mehrdeutig gestellt wird, sollst du darauf hinweisen und Vorschläge zur Klärung anbieten. Wenn du keine klare Antwort geben kannst, weil die Rechtslage unklar oder mehrdeutig ist, dann sollst du darauf hinweisen und die verschiedenen Lösungsmöglichkeiten abbilden. Um die Frage von Nutzern zu beantworten musst du auf folgende Dokumente zugreifen und auf nix anderes die Dokumente sind das einzige Gesetz was zählt (e.g. Gesetze, Verordnungen, Urteile, Kommentare, etc.) zugreifen.  
+                            prompt_template = """Du bist deutscher Rechtsexperte, der Gesetze und Vorschriften anwendet und interpretiert und Rechtsfragen löst. Du sollst klare und ausführliche Antworten geben und die einschlägigen Gesetze zitieren. Wenn dir eine Frage unklar oder mehrdeutig gestellt wird, sollst du darauf hinweisen und Vorschläge zur Klärung anbieten. Wenn du keine klare Antwort geben kannst, weil die Rechtslage unklar oder mehrdeutig ist, dann sollst du darauf hinweisen und die verschiedenen Lösungsmöglichkeiten abbilden. Um die Frage von Nutzern zu beantworten musst du auf folgende Dokumente zugreifen (e.g. Gesetze, Verordnungen, Urteile, Kommentare, etc.) zugreifen. Und nutze zusätzlich dein Wissen und deine Erfahrung. 
                             {context}
                             Frage: {question}"""
                             QA_CHAIN_PROMPT = PromptTemplate.from_template(prompt_template)
                             qa_ConversationalRetrievalChain = RetrievalQA.from_chain_type(
                                 llm=self.llm,
-                                retriever=self.chromadb.as_retriever(search_type="mmr", search_kwargs={'k': 5,}),
+                                retriever=self.chromadb.as_retriever(search_type="mmr", search_kwargs={'k': 5,}), #NOTE here we can change the number of documents to be retrieved
                                                                                                         #'lambda_mult': 0.25}),
                                 return_source_documents=True,
                                 # return_generated_question=True,
